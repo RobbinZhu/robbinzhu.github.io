@@ -8,6 +8,6 @@
 
 ## 范例
 
-[还原小图](http://textureunpacker.59124.com/)
+[还原小图](https://textureunpacker.59124.com/)
 
-[![还原小图](http://raw.githubusercontent.com/RobbinZhu/texture-unpacker/master/demo.gif)](https://raw.githubusercontent.com/RobbinZhu/texture-unpacker/master/demo.gif)
+[![还原小图](https://textureunpacker.59124.com/demo.gif)](https://textureunpacker.59124.com/demo.gif)
