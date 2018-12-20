@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0, viewport-fit=auto">
+    <meta name="renderer" content="webkit" />
+    <meta name='apple-mobile-web-app-capable' content='yes' />
+    <meta name='full-screen' content='true' />
+    <meta name='x5-fullscreen' content='true' />
+    <meta name='360-fullscreen' content='true' />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <title>Document</title>
+    <style>
+    * {
+        margin: 0;
+    }
+    
+    html,
+    body {
+        height: 100%;
+        overflow: hidden;
+    }
+    
+    .pause {
+        position: absolute;
+        top: 10px;
+        left: 50%;
+    }
+    
+    .resume {
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        margin-left: 100px;
+    }
+    
+    .step {
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        margin-left: 200px;
+    }
+    </style>
+</head>
+
+<body>
+    <!--
+    <button class="pause">Pause</button>
+    <button class="resume">Resume</button>
+    <button class="step">Step</button>
+    -->
+    <script type="module" src="./game/biz/index.js"></script>
+</body>
+
+</html>

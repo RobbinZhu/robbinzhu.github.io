@@ -5,3 +5,4 @@ index.js
 zip/tests
 .DS_Store
 webpack.config.js
+*.mp3
