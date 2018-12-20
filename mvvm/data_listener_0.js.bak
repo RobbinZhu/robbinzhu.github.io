@@ -1,0 +1,184 @@
+import NodeTree from './node_tree.js'
+import ArrayProto from './array.js'
+import Watcher from './watcher.js'
+
+function define(data, key, listener) {
+    Object.defineProperty(data, key, {
+        enumerable: true,
+        configurable: true,
+        get: function() {
+            return listener.getValue()
+        },
+        set: function(value) {
+            listener.setValue(value)
+        }
+    })
+}
+
+let id = 0
+const cache = []
+
+class DataListener extends NodeTree {
+    constructor() {
+        super()
+    }
+    init(value, key, parent) {
+        super.init(parent)
+        this.__id__ = ++id
+
+        this.key = key
+        this.value = value
+
+        this.watcherList = []
+
+        this.setValueQueue = []
+        this.setValuePromise = null
+        return this
+    }
+    remove() {
+        // console.log('remove', this.__id__)
+        if (this.parent) {
+            this.parent.removeChild(this)
+        }
+        this.parent = null
+        this.children = null
+        this.watcherList.forEach((watcher) => {
+            watcher.removeListener(this)
+        })
+        this.key =
+            this.value =
+
+            this.watcherList =
+
+            this.setValueQueue =
+            this.setValuePromise = null
+        DataListener.collect(this)
+    }
+    getValue() {
+        this.addWatcher()
+        // console.log('read', this.key, this.value)
+        return this.value
+    }
+    setValue(value) {
+        this.setValueQueue.push(value)
+        if (!this.setValuePromise) {
+            this.setValuePromise = Promise.resolve().then(() => {
+                if (this.setValueQueue.length) {
+                    const value = this.setValueQueue.pop()
+                    if (value !== this.value) {
+
+                        //unListen old value
+                        DataListener.unListen(this.value)
+
+                        this.value = value
+
+                        //listen new value
+                        DataListener.listen(value, this)
+
+                        //notify watchers to update
+                        this.notifyWatchers()
+                    }
+                    this.setValueQueue.length = 0
+                }
+                this.setValuePromise = null
+            })
+        }
+    }
+    addWatcher() {
+        if (Watcher.globalWatcher && this.watcherList.indexOf(Watcher.globalWatcher) < 0) {
+            Watcher.globalWatcher.addListener(this)
+            this.watcherList.push(Watcher.globalWatcher)
+        }
+    }
+    removeWatcher(watcher) {
+        const index = this.watcherList.indexOf(watcher)
+        if (index > -1) {
+            this.watcherList.splice(index, 1)
+        }
+    }
+    notifyWatchers() {
+        this.watcherList && this.watcherList.forEach((watcher) => {
+            watcher && watcher.update(this)
+        })
+    }
+    removeItemsFromArray(result) {
+        if (!result.length) {
+            return
+        }
+        result.forEach(DataListener.unListen)
+    }
+    removeItemFromArray(item) {
+        this.childrenArray.splice(this.childrenArray.indexOf(item.__listener__), 1)
+        DataListener.unListen(item)
+    }
+    static listen(data, parentListener) {
+        if (!data || typeof data !== 'object') {
+            return
+        }
+        if (data.__listener__) {
+            return
+        }
+        parentListener = parentListener || (window.p = DataListener.create())
+
+        Object.defineProperty(data, '__listener__', {
+            value: parentListener,
+            enumerable: false,
+            writable: true,
+            configurable: true
+        })
+
+        const isArray = Array.isArray(data)
+        if (isArray) {
+            data.__proto__ = ArrayProto
+            data.forEach(function(item, index) {
+                DataListener.listen(item, DataListener.create(item, index, parentListener))
+            })
+        } else {
+            Object.keys(data).forEach(function(key) {
+                const item = data[key]
+                if (!item.__listener__) {
+                    const listener = DataListener.create(item, key, parentListener)
+                    define(data, key, listener)
+                    DataListener.listen(item, listener)
+                }
+            })
+        }
+    }
+    static unListen(data, parentListener) {
+        const listener = data.__listener__
+        if (!listener) {
+            parentListener && parentListener.remove()
+            return
+        }
+        if (listener.parent) {
+            listener.parent.removeChild(listener)
+            listener.parent = null
+        }
+        const children = listener.children
+        for (let i = children.length - 1; i >= 0; i--) {
+            const child = children[i]
+            const value = child.value
+            const key = child.key
+
+            delete data[key]
+            data[key] = value
+
+            DataListener.unListen(value, child)
+        }
+        children.length = 0
+        listener.remove()
+    }
+    static getListenerWithData(data) {
+        return data.__listener__
+    }
+    static create(value, key, parentListener) {
+        return (cache.length ? cache.pop() : new DataListener).init(value, key, parentListener)
+    }
+    static collect(listener) {
+        cache.push(listener)
+    }
+    static cleanCache() {
+        cache.length = 0
+    }
+}
+export default DataListener

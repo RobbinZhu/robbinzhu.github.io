@@ -1,0 +1,11 @@
+{
+  "name": "mvvm_simple",
+  "version": "0.0.1",
+  "description": "simple mvvm in dev",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Robbin.Zhu",
+  "license": "ISC"
+}

@@ -1,0 +1,40 @@
+class NodeTree {
+    constructor() {}
+    init(parent) {
+        this.parent = parent
+        this.children = []
+
+        if (parent) {
+            parent.addChild(this)
+        }
+    }
+    addChild(child) {
+        child.parent = this
+        this.children.push(child)
+    }
+    removeChild(child) {
+        child.parent = null
+        if (!this.children) {
+            return
+        }
+        const index = this.children.indexOf(child)
+        if (index > -1) {
+            this.children.splice(index, 1)
+        }
+    }
+    removeChildren() {
+        this.children.forEach(function(child) {
+            child.remove()
+        })
+    }
+    remove() {
+        this.parent && this.parent.removeChild(this)
+        this.removeChildren()
+        this.reset()
+    }
+    reset() {
+        this.parent =
+            this.children = null
+    }
+}
+export default NodeTree

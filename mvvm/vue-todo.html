@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Vue.js TODO List</title>
+    <style>
+    button {
+        border-radius: 5px;
+        min-width: 60px;
+        height: 24px;
+        outline: none;
+    }
+    </style>
+</head>
+
+<body>
+    <div id="todo-list-example" class="demo">
+        <form v-on:submit.prevent="$event.preventDefault()">
+            <label for="new-todo">Add a todo</label>
+            <input v-model="newTodoText" id="new-todo" placeholder="E.g. Feed the cat">
+            <button v-on:click="addTo1000()">每帧加一个，直到1000个</button>
+            <p>
+                添加元素开始时间 {{addTime.start}}
+                <br> 添加元素结束时间 {{addTime.end}}
+                <br> 添加元素耗时 <span v-if="addTime.end">{{addTime.end - addTime.start}}</span>
+            </p>
+            <button v-on:click="removeTo0()">每帧删一个，直到0个</button>
+            <p>
+                删除元素开始时间 {{removeTime.start}}
+                <br> 删除元素结束时间 {{removeTime.end}}
+                <br> 删除元素耗时 <span v-if="removeTime.end">{{removeTime.end - removeTime.start}}</span>
+            </p>
+            <button v-on:click="sort(0)">乱序</button>
+            <button v-on:click="sort(1)">正序</button>
+            <button v-on:click="sort(2)">倒序</button>
+        </form>
+        <ul>
+            <li>
+                total list count: {{todos.length}}
+                <br>
+                <!-- <pre>{{JSON.stringify(todos, null, 3)}}</pre> -->
+            </li>
+            <li v-if="index > 0" v-for="(todo,index) in todos" v-bind:key="todo.id" v-bind:title="todo.title">
+                itemIndex: {{index}}
+                <button v-on:click="todos.splice(index, 1)">Remove</button>
+                {{todo.id}}. {{todo.title}}
+                <input type="text" v-model="todo.title">
+                <ul>
+                    <li v-for="(child, innerIndex) in todo.children" v-bind:key="child.id" v-bind:title="child.name">
+                        {{innerIndex}}. {{child.name}}
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.21/dist/vue.js"></script>
+    <script>
+    const sortFunc = [
+        function() {
+            return Math.random() - 0.5
+        },
+        function(a, b) {
+            return a.id - b.id
+        },
+        function(a, b) {
+            return b.id - a.id
+        }
+    ]
+    new Vue({
+        el: '#todo-list-example',
+        data() {
+            return {
+                newTodoText: '',
+                todos: [{
+                    id: 1,
+                    title: 'Feed the cat',
+                    children: [{
+                        name: 1
+                    }]
+                }, {
+                    id: 2,
+                    title: 'Eat the cat',
+                    children: [{
+                        name: 2
+                    }]
+                }],
+                nextTodoId: 3,
+                timeStart: '',
+                timeEnd: '',
+                timeCost: '',
+                addTime: {
+                    start: '',
+                    end: '',
+                    cost: ''
+                },
+                removeTime: {
+                    start: '',
+                    end: '',
+                    cost: ''
+                }
+            }
+        },
+        methods: {
+            removeTo0() {
+                this.removeTime.start = Date.now()
+                this.removeTime.end = ''
+                this.remove()
+            },
+            remove() {
+                if (this.todos.length == 0) {
+                    this.removeTime.end = Date.now()
+                    this.removeTime.cost = this.removeTime.end - this.removeTime.start
+                    return
+                }
+                const index = (Math.random() * this.todos.length) | 0
+                    // console.warn('try to remove', JSON.stringify(this.todos[index]))
+                this.todos.splice(index, 1)
+                requestAnimationFrame(() => {
+                    this.remove()
+                })
+            },
+            addTo1000() {
+                this.addTime.start = Date.now()
+                this.addTime.end = ''
+                this.add()
+            },
+            add() {
+                if (this.todos.length == 1000) {
+                    this.addTime.end = Date.now()
+                    this.addTime.cost = this.addTime.end - this.addTime.start
+                    return
+                }
+                this.addNewTodo()
+                requestAnimationFrame(() => {
+                    this.add()
+                })
+            },
+            addNewTodo() {
+                this.todos.splice((Math.random() * this.todos.length) | 0, 0, {
+                    id: this.nextTodoId,
+                    title: this.nextTodoId++,
+                    children: [{
+                        name: Math.random()
+                    }]
+                })
+            },
+            sort(index) {
+                this.todos.sort(sortFunc[index | 0])
+            }
+        }
+    })
+    </script>
+</body>
+
+</html>

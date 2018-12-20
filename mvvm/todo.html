@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>TODO LIST</title>
+    <style>
+    button {
+        border-radius: 5px;
+        min-width: 60px;
+        height: 24px;
+        outline: none;
+    }
+    </style>
+</head>
+
+<body>
+    <div id="todo-list-example">
+        <go-fire></go-fire>
+        <go-fire></go-fire>
+        <go-fire></go-fire>
+        <form :on-submit="e.preventDefault()">
+            <label for="new-todo">Add a todo</label>
+            <input :model="newTodoText" id="new-todo" placeholder="E.g. Feed the cat">
+            <button :on-click="addTo1000()">每帧加一个，直到1000个</button>
+            <p>
+                添加元素开始时间 {{addTime.start}}
+                <br> 添加元素结束时间 {{addTime.end}}
+                <br> 添加元素耗时 <span :if="addTime.end">{{addTime.end - addTime.start}}</span>
+            </p>
+            <button :on-click="removeTo0()">每帧删一个，直到0个</button>
+            <p>
+                删除元素开始时间 {{removeTime.start}}
+                <br> 删除元素结束时间 {{removeTime.end}}
+                <br> 删除元素耗时 <span :if="removeTime.end">{{removeTime.end - removeTime.start}}</span>
+            </p>
+            <button :on-click="sort(0)">乱序</button>
+            <button :on-click="sort(1)">正序</button>
+            <button :on-click="sort(2)">倒序</button>
+        </form>
+        <ul>
+            <li>
+                total list count: {{todos.length}}
+                <br>
+            </li>
+            <li :title="todo.title" :class="{a: todo.title.length > 3, b: true}" :for-index="index" :for-item="todo" :for-array="todos">
+                itemIndex: {{index}}
+                <button :on-click="todos.splice(index, 1)">Remove</button>
+                {{todo.id}}. {{todo.title}}
+                <input type="text" :model="todo.title">
+                <ul :style="{color: todo.title.length > 4 ? 'red': 'blue', 'font-size': '20px'}">
+                    <li :for-index="innerIndex" :for-item="child" :for-array="todo.children">
+                        {{innerIndex}}. {{child.name}}
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+    <script src="./dist/todo_build.js"></script>
+    <!--<script type="module" src="./todo.js"></script>-->
+</body>
+
+</html>
